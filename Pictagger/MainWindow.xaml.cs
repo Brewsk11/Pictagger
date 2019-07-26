@@ -22,7 +22,6 @@ namespace Pictagger
     public partial class MainWindow : Window
     {
         public Models.MappedImage CurrentMappedImage;
-        public bool FillMode = false;
         public double BrushSize = 10.0;
 
         private Point PrevMousePos = new Point();
@@ -71,12 +70,9 @@ namespace Pictagger
 
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (FillMode)
-                {
-                    CurrentMappedImage.Fill(x, y);
-                    RefreshCanvas(canvas, CurrentMappedImage);
-                }
-            } else if (e.RightButton == MouseButtonState.Pressed)
+                DrawCircle(canvas, BrushSize, p.X, p.Y);
+            }
+            else if (e.RightButton == MouseButtonState.Pressed)
             {
                 CurrentMappedImage.FloodFill(x, y);
                 RefreshCanvas(canvas, CurrentMappedImage);
@@ -246,20 +242,6 @@ namespace Pictagger
         private double PythagorasCalcC(double a, double b)
         {
             return Math.Sqrt(Math.Pow(a, 2.0) + Math.Pow(b, 2.0));
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            if (FillMode)
-            {
-                FillMode = false;
-                FillButton.Content = "Fill";
-            }
-            else
-            {
-                FillMode = true;
-                FillButton.Content = "Active";
-            }
         }
     }
 }

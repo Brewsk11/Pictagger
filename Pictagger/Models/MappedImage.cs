@@ -108,18 +108,5 @@ namespace Pictagger.Models
             else
                 return false;
         }
-
-        public void Fill(int x, int y)
-        {
-            if (IsInbound(x, y))
-            {
-                Map[y][x] = true;
-
-                if (!Get(x, y - 1)) Fill(x, y - 1);
-                if (!Get(x - 1, y)) Fill(x - 1, y);
-                if (!Get(x, y + 1)) Fill(x, y + 1);
-                if (!Get(x + 1, y)) Fill(x + 1, y);
-            }
-        }
     }
 }
