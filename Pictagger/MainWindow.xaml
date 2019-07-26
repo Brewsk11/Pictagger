@@ -5,8 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Pictagger"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="MainWindow" Height="Auto" Width="Auto">
+    <Grid Width="Auto" Height="Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40px"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Label Content="Current file:" Margin="10,8,0,8" HorizontalAlignment="Left" Width="Auto"/>
+        <Label Name="fileNameLabel" Content="Label" HorizontalAlignment="Left" Margin="86,7,0,7" Width="Auto"/>
+        <Button Content="Choose file" Margin="0,10,24,10" HorizontalAlignment="Right" Width="75" Click="Button_Click"/>
+
+        <Image Name="image" Height="400" Width="400" Margin="10,10,0,0" Grid.Row="1" Stretch="Fill" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Canvas Name="canvas" HorizontalAlignment="Left" Height="400" Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="400" MouseMove="OnMouseMove" MouseDown="OnMouseDown" MouseUp="OnMouseUp">
+            <Canvas.Background>
+                <SolidColorBrush Color="Red" Opacity="0.5"/>
+            </Canvas.Background>
+        </Canvas>
+        <Slider HorizontalAlignment="Right" Margin="0,10,10,0" Grid.Row="1" VerticalAlignment="Top" Height="20" Width="200" Maximum="20" Minimum="1" Value="{Binding Path=BrushSize, Mode=TwoWay}" ValueChanged="Slider_ValueChanged"/>
+        <Button Name="FillButton" Content="Fill" HorizontalAlignment="Left" Margin="570,143,0,0" Grid.Row="1" VerticalAlignment="Top" Width="76" Click="Button_Click_1"/>
     </Grid>
 </Window>
