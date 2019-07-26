@@ -64,13 +64,21 @@ namespace Pictagger
             
             Point p = Mouse.GetPosition(canvas);
             PrevMousePos = p;
+                
+            var x = (int)(p.X / canvas.Width * Models.MappedImage.Resolution);
+            var y = (int)(p.Y / canvas.Height * Models.MappedImage.Resolution);
 
-            if (FillMode)
-            { 
-                var x = (int)(p.X / canvas.Width  * Models.MappedImage.Resolution);
-                var y = (int)(p.Y / canvas.Height * Models.MappedImage.Resolution);
 
-                CurrentMappedImage.Fill(x, y);
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                if (FillMode)
+                {
+                    CurrentMappedImage.Fill(x, y);
+                    RefreshCanvas(canvas, CurrentMappedImage);
+                }
+            } else if (e.RightButton == MouseButtonState.Pressed)
+            {
+                CurrentMappedImage.FloodFill(x, y);
                 RefreshCanvas(canvas, CurrentMappedImage);
             }
         }
@@ -195,7 +203,8 @@ namespace Pictagger
             {
                 Fill = new SolidColorBrush(Colors.Black),
                 Width = pixelWidth,
-                Height = pixelHeight
+                Height = pixelHeight,
+                Opacity = 0.5
             };
 
             // If rectangle already drawn, don't draw it
