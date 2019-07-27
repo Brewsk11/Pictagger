@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Pictagger"
         mc:Ignorable="d"
-        Title="MainWindow" Height="Auto" Width="Auto">
+        Title="MainWindow" Height="731.5" Width="847.5" MouseWheel="OnMouseWheel">
     <Grid Width="Auto" Height="Auto">
         <Grid.RowDefinitions>
             <RowDefinition Height="40px"/>
@@ -16,13 +16,25 @@
         <Label Name="fileNameLabel" Content="Label" HorizontalAlignment="Left" Margin="86,7,0,7" Width="Auto"/>
         <Button Content="Choose file" Margin="0,10,24,10" HorizontalAlignment="Right" Width="75" Click="Button_Click"/>
 
-        <Image Name="image" Height="400" Width="400" Margin="10,10,0,0" Grid.Row="1" Stretch="Fill" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-        <Canvas Name="canvas" HorizontalAlignment="Left" Height="400" Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="400" MouseMove="OnMouseMove" MouseDown="OnMouseDown" MouseUp="OnMouseUp">
-            <Canvas.Background>
-                <SolidColorBrush Color="Red" Opacity="0.5"/>
-            </Canvas.Background>
-        </Canvas>
         <Slider Name="brushSizeSlider" Margin="428,10,0,0" Grid.Row="1" VerticalAlignment="Top" Height="30" Maximum="24" Minimum="2" Value="{Binding Path=BrushSize, Mode=TwoWay}" ValueChanged="Slider_ValueChanged" HorizontalAlignment="Left" Width="200" TickFrequency="1.0" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
         <Label Content="{Binding ElementName=brushSizeSlider, Path=Value, Mode=TwoWay}" HorizontalAlignment="Left" Margin="633,10,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+
+        <Image Name="image" Height="400" Width="400" Margin="10,10,0,0" Grid.Row="1" Stretch="Fill" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Canvas Name="canvas" HorizontalAlignment="Left" Height="400" Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="400" MouseMove="OnMouseMove" MouseDown="OnMouseDown" MouseUp="OnMouseUp" Opacity="0.5" Background="#7FFFFFFF"/>
+
+        <Image Name="image2" HorizontalAlignment="Left" Height="150" Margin="10,431,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150"/>
+        <Image Name="image3" HorizontalAlignment="Left" Height="150" Margin="165,431,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150"/>
+        <Image Name="image4" HorizontalAlignment="Left" Height="150" Margin="320,431,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150"/>
+        <Image Name="image5" HorizontalAlignment="Left" Height="150" Margin="475,431,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150"/>
+        <Canvas Name="canvas2" HorizontalAlignment="Left" Height="150" Margin="10,431,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150" Opacity="0.5" Background="#7FFFFFFF"/>
+        <Canvas Name="canvas3" HorizontalAlignment="Left" Height="150" Margin="165,431,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150" Opacity="0.5" Background="#7FFFFFFF"/>
+        <Canvas Name="canvas4" HorizontalAlignment="Left" Height="150" Margin="320,431,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150" Opacity="0.5" Background="#7FFFFFFF"/>
+        <Canvas Name="canvas5" HorizontalAlignment="Left" Height="150" Margin="475,431,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150" Opacity="0.5" Background="#7FFFFFFF"/>
+        <Button Content="Map to lower resolutions" HorizontalAlignment="Left" Margin="428,376,0,0" Grid.Row="1" VerticalAlignment="Top" Width="197" Height="34" Click="Button_Click_1"/>
+        <Label Content="64px" HorizontalAlignment="Left" Margin="67,586,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <Label Content="32px" HorizontalAlignment="Left" Margin="221,586,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <Label Content="16px" HorizontalAlignment="Left" Margin="374,586,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <Label Content="8px" HorizontalAlignment="Left" Margin="538,586,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <Button Content="Save Bitmap" HorizontalAlignment="Left" Margin="428,339,0,0" Grid.Row="1" VerticalAlignment="Top" Width="197" Height="32" Click="Button_Click_2"/>
     </Grid>
 </Window>

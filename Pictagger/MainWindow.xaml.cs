@@ -23,6 +23,9 @@ namespace Pictagger
     {
         public Models.MappedImage CurrentMappedImage;
         public double BrushSize = 10.0;
+        public Key eraseKey = Key.X;
+
+        public readonly int DefaultRes = 128;
 
         private Point PrevMousePos = new Point();
 
@@ -43,14 +46,19 @@ namespace Pictagger
             if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 fileNameLabel.Content = dlg.SafeFileName;
-
+                
                 BitmapImage bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 bitmap.UriSource = new Uri(dlg.FileName);
                 bitmap.EndInit();
-                image.Source = bitmap;
 
-                CurrentMappedImage = new Models.MappedImage();
+                image.Source = bitmap;
+                image2.Source = bitmap;
+                image3.Source = bitmap;
+                image4.Source = bitmap;
+                image5.Source = bitmap;
+
+                CurrentMappedImage = new Models.MappedImage(DefaultRes);
 
                 RefreshCanvas(canvas, CurrentMappedImage);
             }
@@ -64,10 +72,9 @@ namespace Pictagger
             Point p = Mouse.GetPosition(canvas);
             PrevMousePos = p;
                 
-            var x = (int)(p.X / canvas.Width * Models.MappedImage.Resolution);
-            var y = (int)(p.Y / canvas.Height * Models.MappedImage.Resolution);
-
-
+            var x = (int)(p.X / canvas.Width * CurrentMappedImage.Resolution);
+            var y = (int)(p.Y / canvas.Height * CurrentMappedImage.Resolution);
+            
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 DrawCircle(canvas, BrushSize, p.X, p.Y);
@@ -92,10 +99,11 @@ namespace Pictagger
         {
             // Exit early if no image is loaded
             if (CurrentMappedImage == null) return;
+
+            Point CurrentMousePos = Mouse.GetPosition(canvas);
             
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                Point CurrentMousePos = Mouse.GetPosition(canvas);
                 DrawCircle(canvas, BrushSize, CurrentMousePos.X, CurrentMousePos.Y);
 
                 ////
@@ -112,8 +120,9 @@ namespace Pictagger
 
                 double stepX = differenceX / steps;
                 double stepY = differenceY / steps;
-                
-                for (int i = 0; i < steps; i++) {
+
+                for (int i = 0; i < steps; i++)
+                {
                     DrawCircle(
                         canvas,
                         BrushSize,
@@ -124,14 +133,19 @@ namespace Pictagger
 
                 PrevMousePos = CurrentMousePos;
             }
+            
         }
         
         private void MapCanvas(Canvas canvas, Models.MappedImage mappedImage)
         {
-            int res = Models.MappedImage.Resolution;
+            int res = DefaultRes;
 
             double pixelWidth = canvas.Width / res;
             double pixelHeight = canvas.Height / res;
+
+            for (int i = 0; i < res; i++)
+                for (int j = 0; j < res; j++)
+                    mappedImage.Clear(i, j);
 
             foreach (Rectangle rect in canvas.Children)
             {
@@ -144,7 +158,7 @@ namespace Pictagger
 
         private void DrawCircle(Canvas canvas, double radius, double x, double y)
         {
-            int res = Models.MappedImage.Resolution;
+            int res = DefaultRes;
 
             double pixelWidth = canvas.Width / res;
             double pixelHeight = canvas.Height / res;
@@ -173,14 +187,14 @@ namespace Pictagger
             }
         }
 
-        private void DrawPixel(Canvas canvas, Point point)
+        private void DrawPixel(Canvas canvas, Point point, int resolution = 128)
         {
             DrawPixel(canvas, point.X, point.Y);
         }
 
-        private void DrawPixel(Canvas canvas, double x, double y)
+        private void DrawPixel(Canvas canvas, double x, double y, int resolution = 128)
         {
-            int res = Models.MappedImage.Resolution;
+            int res = resolution;
 
             var pixelX = (int)(x / canvas.Width * res);
             var pixelY = (int)(y / canvas.Height * res);
@@ -188,50 +202,79 @@ namespace Pictagger
             DrawPixel(canvas, pixelX, pixelY);
         }
 
-        private void DrawPixel(Canvas canvas, int x, int y)
+        private void DrawPixel(Canvas canvas, int x, int y, int resolution = 128)
         {
-            int res = Models.MappedImage.Resolution;
+            bool eraseMode = Keyboard.IsKeyDown(eraseKey);
+
+            int res = resolution;
 
             double pixelWidth = canvas.Width / res;
             double pixelHeight = canvas.Height / res;
 
-            Rectangle rect = new Rectangle
-            {
-                Fill = new SolidColorBrush(Colors.Black),
-                Width = pixelWidth,
-                Height = pixelHeight,
-                Opacity = 0.5
-            };
-
-            // If rectangle already drawn, don't draw it
+            Rectangle toRemove = null;
+            
             foreach (Rectangle r in canvas.Children)
             {
                 if (Math.Abs(Canvas.GetTop(r) - pixelHeight * y) < pixelHeight / 2 &&
                     Math.Abs(Canvas.GetLeft(r) - pixelWidth * x) < pixelWidth / 2)
                 {
-                    return;
+                    if (!eraseMode)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        toRemove = r;
+                        break;
+                    }
                 }
             }
 
-            Canvas.SetTop(rect, pixelHeight * y);
-            Canvas.SetLeft(rect, pixelWidth * x);
+            if (!eraseMode)
+            {
+                Rectangle rect = new Rectangle
+                {
+                    Fill = new SolidColorBrush(Colors.Green),
+                    Width = pixelWidth,
+                    Height = pixelHeight,
+                    Opacity = 0.85
+                };
 
-            canvas.Children.Add(rect);
+                Canvas.SetTop(rect, pixelHeight * y);
+                Canvas.SetLeft(rect, pixelWidth * x);
+
+                canvas.Children.Add(rect);
+            }
+            else
+            {
+                canvas.Children.Remove(toRemove);
+            }
         }
 
         private void RefreshCanvas(Canvas canvas, Models.MappedImage mappedImage)
         {
-            int res = Models.MappedImage.Resolution;
+            int res = mappedImage.Resolution;
 
             canvas.Children.Clear();
             for (int i = 0; i < res; i++)
             {
                 for(int j = 0; j < res; j++)
                 {
-                    if (!mappedImage.Get(j, i)) continue;
-                    DrawPixel(canvas, j, i);
+                    if (!mappedImage.Get(j, i))
+                        continue;
+
+                    DrawPixel(canvas, j, i, res);
                 }
             }
+        }
+
+        private void RefreshAllCanvases()
+        {
+            RefreshCanvas(canvas, CurrentMappedImage);
+            RefreshCanvas(canvas2, CurrentMappedImage.Downscale(1));
+            RefreshCanvas(canvas3, CurrentMappedImage.Downscale(2));
+            RefreshCanvas(canvas4, CurrentMappedImage.Downscale(3));
+            RefreshCanvas(canvas5, CurrentMappedImage.Downscale(4));
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -242,6 +285,32 @@ namespace Pictagger
         private double PythagorasCalcC(double a, double b)
         {
             return Math.Sqrt(Math.Pow(a, 2.0) + Math.Pow(b, 2.0));
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            RefreshAllCanvases();
+        }
+
+        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta > 0)
+                brushSizeSlider.Value++;
+
+            else if (e.Delta < 0)
+                brushSizeSlider.Value--;
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            System.Drawing.Bitmap bm = CurrentMappedImage.ToBitmap();
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            if(saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                bm.Save(saveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Bmp);
+            }
         }
     }
 }

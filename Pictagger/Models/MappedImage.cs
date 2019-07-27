@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace Pictagger.Models
 {
     public class MappedImage
     {
-        public static readonly int Resolution = 128;
+        public int Resolution = 128;
 
         private bool[][] Map;
 
-        public MappedImage()
+        public MappedImage(int resolution)
         {
+            Resolution = resolution;
+
             Map = new bool[Resolution][];
             Random r = new Random();
             for(int i = 0; i < Resolution; i++)
@@ -107,6 +110,66 @@ namespace Pictagger.Models
                 return true;
             else
                 return false;
+        }
+
+        public MappedImage Downscale(int factor)
+        {
+            int scale = (int)Math.Pow(2.0, factor);
+
+            MappedImage downscaled = new MappedImage(Resolution / scale);
+            
+            for(int y = 0; y < Resolution; y += scale)
+            {
+                for(int x = 0; x < Resolution; x += scale)
+                {
+                    int counter = 0;
+
+                    for(int localY = y; localY < y + scale; localY++)
+                    {
+                        for(int localX = x; localX < x +scale; localX++)
+                        {
+                            if (Get(localX, localY)) counter++;
+                        }
+                    }
+
+                    if (counter > scale * scale / 2) downscaled.Set(x / scale, y / scale);
+                }
+            }
+
+            return downscaled;
+        }
+
+        public Bitmap ToBitmap()
+        {
+            Bitmap bm = new Bitmap(Resolution, Resolution, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+            for (int y = 0; y < Resolution; y++)
+                for (int x = 0; x < Resolution; x++)
+                    if (Get(x, y))
+                        bm.SetPixel(x, y, Color.White);
+                    else
+                        bm.SetPixel(x, y, Color.Black);
+
+            return bm;
+        }
+
+        public void SaveEncoded(string path, string name)
+        {
+            string fullPath = path;
+            if (path.EndsWith("\\") || path.EndsWith("/"))
+                fullPath += name;
+            else
+                fullPath += "\\" + name;
+
+            using (System.IO.FileStream f = System.IO.File.Create(fullPath))
+            {
+                for (int y = 0; y < Resolution; y++)
+                    for (int x = 0; x < Resolution; x += 8)
+                        if (Get(x, y))
+                            f.WriteByte(1);
+                        else
+                            f.WriteByte(0);
+            }
         }
     }
 }
