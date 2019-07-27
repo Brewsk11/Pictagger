@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
 
 namespace Pictagger
 {
@@ -22,10 +23,15 @@ namespace Pictagger
     public partial class MainWindow : Window
     {
         public Models.MappedImage CurrentMappedImage;
+
         public double BrushSize = 10.0;
         public Key eraseKey = Key.X;
 
-        public string CurrentPath = "No path selected";
+        public DirectoryInfo CurrentDirectory = null;
+        public DirectoryInfo TaggedDirectory = null;
+        public FileInfo CurrentFile = null;
+
+        public List<FileInfo> FilesLeft, FilesTagged;
 
         public readonly int DefaultRes = 128;
 
@@ -36,7 +42,7 @@ namespace Pictagger
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void OpenFileDialog(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog
             {
@@ -47,23 +53,35 @@ namespace Pictagger
 
             if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                fileNameLabel.Content = dlg.SafeFileName;
-                
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(dlg.FileName);
-                bitmap.EndInit();
-
-                image.Source = bitmap;
-                image2.Source = bitmap;
-                image3.Source = bitmap;
-                image4.Source = bitmap;
-                image5.Source = bitmap;
-
-                CurrentMappedImage = new Models.MappedImage(DefaultRes);
-
-                RefreshCanvas(canvas, CurrentMappedImage);
+                LoadImage(dlg.FileName);
             }
+        }
+
+        private void LoadImage(string path)
+        {
+            fileNameLabel.Content = path;
+            CurrentFile = new FileInfo(path);
+
+            BitmapImage bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(path);
+            bitmap.EndInit();
+
+            image.Source = bitmap;
+            image2.Source = bitmap;
+            image3.Source = bitmap;
+            image4.Source = bitmap;
+            image5.Source = bitmap;
+
+            CurrentMappedImage = new Models.MappedImage(DefaultRes);
+
+            RefreshAllCanvases();
+        }
+
+        private void RefreshTaggedNumbers()
+        {
+            numberLeft.Content = FilesLeft.Count;
+            numberTagged.Content = FilesTagged.Count;
         }
 
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -270,15 +288,6 @@ namespace Pictagger
             }
         }
 
-        private void RefreshAllCanvases()
-        {
-            RefreshCanvas(canvas, CurrentMappedImage);
-            RefreshCanvas(canvas2, CurrentMappedImage.Downscale(1));
-            RefreshCanvas(canvas3, CurrentMappedImage.Downscale(2));
-            RefreshCanvas(canvas4, CurrentMappedImage.Downscale(3));
-            RefreshCanvas(canvas5, CurrentMappedImage.Downscale(4));
-        }
-
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             BrushSize = e.NewValue;
@@ -289,11 +298,6 @@ namespace Pictagger
             return Math.Sqrt(Math.Pow(a, 2.0) + Math.Pow(b, 2.0));
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            RefreshAllCanvases();
-        }
-
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (e.Delta > 0)
@@ -302,29 +306,169 @@ namespace Pictagger
             else if (e.Delta < 0)
                 brushSizeSlider.Value--;
         }
-
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        
+        private void OpenDirectoryDialog(object sender, RoutedEventArgs e)
         {
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
 
-
-
-
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-            if(saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                System.Drawing.Bitmap bm = CurrentMappedImage.ToBitmap();
-                bm.Save(saveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Bmp);
+                CurrentDirectory = new DirectoryInfo(dlg.SelectedPath);
+                FilesLeft = new List<FileInfo>();
+                FilesTagged = new List<FileInfo>();
 
-                bm = CurrentMappedImage.Downscale(1).ToBitmap();
-                bm.Save(saveFileDialog.FileName + "128", System.Drawing.Imaging.ImageFormat.Bmp);
-                bm = CurrentMappedImage.Downscale(2).ToBitmap();
-                bm.Save(saveFileDialog.FileName + "64", System.Drawing.Imaging.ImageFormat.Bmp);
-                bm = CurrentMappedImage.Downscale(3).ToBitmap();
-                bm.Save(saveFileDialog.FileName + "32", System.Drawing.Imaging.ImageFormat.Bmp);
-                bm = CurrentMappedImage.Downscale(4).ToBitmap();
-                bm.Save(saveFileDialog.FileName + "16", System.Drawing.Imaging.ImageFormat.Bmp);
+                Directory.CreateDirectory(CurrentDirectory.FullName + "\\Tagged");
+                DirectoryInfo taggedDir = new DirectoryInfo(CurrentDirectory.FullName + "\\Tagged");
+
+                foreach (FileInfo f in taggedDir.EnumerateFiles())
+                    if(f.Extension == ".bmp" && f.Name.Contains("_128.bmp"))
+                        FilesTagged.Add(f);
+
+                foreach(FileInfo f in CurrentDirectory.EnumerateFiles())
+                    if(f.Extension == ".jpg")
+                        FilesLeft.Add(f);
+
+                foreach(FileInfo tagged in FilesTagged)
+                {
+                    string stripped = StripResolution(StripExtension(tagged.Name));
+                    foreach(FileInfo f in FilesLeft)
+                    {
+                        if(StripExtension(f.Name) == stripped)
+                        {
+                            FilesLeft.Remove(f);
+                            break;
+                        }
+                    }
+                }
+
+                directoryLabel.Content = CurrentDirectory.FullName;
+                RefreshTaggedNumbers();
             }
+        }
+
+        private void SaveAndLoadNext(object sender, RoutedEventArgs e)
+        {
+            if (CurrentDirectory == null)
+            {
+                System.Windows.MessageBox.Show(
+                    "Please select a directory before you use this option",
+                    "No directory selected",
+                    MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+
+            if (CurrentFile != null)
+            {
+                SaveBmps(CurrentDirectory.FullName + "\\Tagged\\" + CurrentFile.Name);
+
+                FilesTagged.Add(CurrentFile);
+                string stripped = StripExtension(CurrentFile.Name);
+
+                foreach (FileInfo f in FilesLeft)
+                {
+                    if (StripExtension(f.Name) == stripped)
+                    {
+                        FilesLeft.Remove(f);
+                        break;
+                    }
+                }
+            }
+
+            RefreshTaggedNumbers();
+
+            CurrentFile = FilesLeft[new Random().Next(0, FilesLeft.Count)];
+            LoadImage(CurrentFile.FullName);
+        }
+
+        private void SaveAsBitmapsWithDialog(object sender, RoutedEventArgs e)
+        {
+            if (CurrentMappedImage == null)
+            {
+                System.Windows.MessageBox.Show(
+                    "Please load a file before you use this option",
+                    "No file loaded",
+                    MessageBoxButton.OK, MessageBoxImage.Exclamation);
+
+                return;
+            }
+
+            FileInfo currFile = new FileInfo((string)fileNameLabel.Content);
+
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                AddExtension = true,
+                DefaultExt = "bmp",
+                FileName = StripExtension(currFile.Name),
+                Filter = "Image files (*.bmp)|*.bmp|All Files (*.*)|*.*",
+                RestoreDirectory = true
+            };
+
+            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                SaveBmps(sfd.FileName);
+            }
+        }
+
+        private void SaveBmps(string path)
+        {
+            FileInfo fi = new FileInfo(path);
+
+            string nameNoExt = StripExtension(fi.Name);
+
+            string baseName = fi.DirectoryName + "\\" + nameNoExt;
+
+            System.Drawing.Bitmap bm = CurrentMappedImage.ToBitmap();
+            bm.Save(baseName + "_128.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+
+            bm = CurrentMappedImage.Downscale(1).ToBitmap();
+            bm.Save(baseName + "_64.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+
+            bm = CurrentMappedImage.Downscale(2).ToBitmap();
+            bm.Save(baseName + "_32.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+
+            bm = CurrentMappedImage.Downscale(3).ToBitmap();
+            bm.Save(baseName + "_16.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+
+            bm = CurrentMappedImage.Downscale(4).ToBitmap();
+            bm.Save(baseName + "_8.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+        }
+
+        private string StripResolution(string str)
+        {
+            string ret = str;
+            ret = ret.Replace("_128", "");
+            ret = ret.Replace("_64", "");
+            ret = ret.Replace("_32", "");
+            ret = ret.Replace("_16", "");
+            ret = ret.Replace("_8", "");
+
+            return ret;
+        }
+
+        private string StripExtension(string str)
+        {
+            string nameNoExt = "";
+            
+            string[] parts = str.Split('.');
+            if (parts.Count() == 1)
+                return parts[0];
+
+            for (int i = 0; i < parts.Count() - 1; i++) nameNoExt += parts[i];
+            return nameNoExt;
+        }
+
+        private void TransferToLowerRes(object sender, RoutedEventArgs e)
+        {
+            RefreshAllCanvases();
+        }
+
+        private void RefreshAllCanvases()
+        {
+            RefreshCanvas(canvas, CurrentMappedImage);
+            RefreshCanvas(canvas2, CurrentMappedImage.Downscale(1));
+            RefreshCanvas(canvas3, CurrentMappedImage.Downscale(2));
+            RefreshCanvas(canvas4, CurrentMappedImage.Downscale(3));
+            RefreshCanvas(canvas5, CurrentMappedImage.Downscale(4));
         }
     }
 }

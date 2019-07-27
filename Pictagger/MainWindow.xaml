@@ -22,8 +22,8 @@
         <Label Name="fileNameLabel" Content="No file selected" HorizontalAlignment="Left" Margin="122,9,0,0" Width="Auto" Height="26" VerticalAlignment="Top"/>
         <Label Name="directoryLabel" Content="No directory selected" HorizontalAlignment="Left" Margin="122,40,0,0" Width="Auto" Height="27" VerticalAlignment="Top"/>
         
-        <Button Content="Choose file" Margin="0,10,24,0" HorizontalAlignment="Right" Width="124" Click="Button_Click" Height="25" VerticalAlignment="Top"/>
-        <Button Content="Choose directory" Margin="0,40,24,0" HorizontalAlignment="Right" Width="124" Click="Button_Click" Height="25" VerticalAlignment="Top"/>
+        <Button Content="Choose file" Margin="0,10,24,0" HorizontalAlignment="Right" Width="124" Click="OpenFileDialog" Height="25" VerticalAlignment="Top"/>
+        <Button Content="Choose directory" Margin="0,40,24,0" HorizontalAlignment="Right" Width="124" Click="OpenDirectoryDialog" Height="25" VerticalAlignment="Top"/>
 
 
         <!-- Functional elements -->
@@ -31,9 +31,9 @@
         <Slider Name="brushSizeSlider" Margin="428,10,0,0" Grid.Row="1" VerticalAlignment="Top" Height="30" Maximum="24" Minimum="2" Value="{Binding Path=BrushSize, Mode=TwoWay}" ValueChanged="Slider_ValueChanged" HorizontalAlignment="Left" Width="176" TickFrequency="1.0" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
         <Label Content="{Binding ElementName=brushSizeSlider, Path=Value, Mode=TwoWay}" HorizontalAlignment="Left" Margin="609,10,0,0" Grid.Row="1" VerticalAlignment="Top"/>
 
-        <Button Content="Save bitmaps as" HorizontalAlignment="Left" Margin="428,329,0,0" Grid.Row="1" VerticalAlignment="Top" Width="197" Height="32" Click="Button_Click_2"/>
-        <Button Content="Save and go to next in directory" HorizontalAlignment="Left" Margin="428,292,0,0" Grid.Row="1" VerticalAlignment="Top" Width="197" Height="32"/>
-        <Button Content="Map to lower resolutions" HorizontalAlignment="Left" Margin="428,376,0,0" Grid.Row="1" VerticalAlignment="Top" Width="197" Height="32" Click="Button_Click_1"/>
+        <Button Content="Save bitmaps as" HorizontalAlignment="Left" Margin="428,329,0,0" Grid.Row="1" VerticalAlignment="Top" Width="197" Height="32" Click="SaveAsBitmapsWithDialog"/>
+        <Button Content="Save and go to next in directory" HorizontalAlignment="Left" Margin="428,292,0,0" Grid.Row="1" VerticalAlignment="Top" Width="197" Height="32" Click="SaveAndLoadNext"/>
+        <Button Content="Map to lower resolutions" HorizontalAlignment="Left" Margin="428,376,0,0" Grid.Row="1" VerticalAlignment="Top" Width="197" Height="32" Click="TransferToLowerRes"/>
         
         
         <!-- Images left labels -->
@@ -41,8 +41,8 @@
         <Label Content="# of tagged images:" HorizontalAlignment="Left" Margin="428,238,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalContentAlignment="Right" Width="160" FontStyle="Italic"/>
         <Label Content="# of images left in directory:" HorizontalAlignment="Left" Margin="428,207,0,0" Grid.Row="1" VerticalAlignment="Top" Width="160" HorizontalContentAlignment="Right" FontStyle="Italic"/>
         
-        <Label Content="-" HorizontalAlignment="Left" Margin="593,207,0,0" Grid.Row="1" VerticalAlignment="Top" Width="32"/>
-        <Label Content="-" HorizontalAlignment="Left" Margin="593,238,0,0" Grid.Row="1" VerticalAlignment="Top" Width="32"/>
+        <Label Name="numberLeft" Content="-" HorizontalAlignment="Left" Margin="593,207,0,0" Grid.Row="1" VerticalAlignment="Top" Width="32"/>
+        <Label Name="numberTagged" Content="-" HorizontalAlignment="Left" Margin="593,238,0,0" Grid.Row="1" VerticalAlignment="Top" Width="32"/>
         
         
         <!-- Canvases and images -->
