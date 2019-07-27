@@ -25,6 +25,8 @@ namespace Pictagger
         public double BrushSize = 10.0;
         public Key eraseKey = Key.X;
 
+        public string CurrentPath = "No path selected";
+
         public readonly int DefaultRes = 128;
 
         private Point PrevMousePos = new Point();
@@ -303,13 +305,25 @@ namespace Pictagger
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            System.Drawing.Bitmap bm = CurrentMappedImage.ToBitmap();
+
+
+
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
 
             if(saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
+                System.Drawing.Bitmap bm = CurrentMappedImage.ToBitmap();
                 bm.Save(saveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Bmp);
+
+                bm = CurrentMappedImage.Downscale(1).ToBitmap();
+                bm.Save(saveFileDialog.FileName + "128", System.Drawing.Imaging.ImageFormat.Bmp);
+                bm = CurrentMappedImage.Downscale(2).ToBitmap();
+                bm.Save(saveFileDialog.FileName + "64", System.Drawing.Imaging.ImageFormat.Bmp);
+                bm = CurrentMappedImage.Downscale(3).ToBitmap();
+                bm.Save(saveFileDialog.FileName + "32", System.Drawing.Imaging.ImageFormat.Bmp);
+                bm = CurrentMappedImage.Downscale(4).ToBitmap();
+                bm.Save(saveFileDialog.FileName + "16", System.Drawing.Imaging.ImageFormat.Bmp);
             }
         }
     }
