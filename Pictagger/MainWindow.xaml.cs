@@ -472,6 +472,29 @@ namespace Pictagger
             RefreshAllCanvases();
         }
 
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var item = (ComboBoxItem)e.AddedItems[0];
+
+            switch(item.Content)
+            {
+                case "Pen":
+                    canvas.Cursor = System.Windows.Input.Cursors.Pen;
+                    break;
+
+                case "Cross":
+                    canvas.Cursor = System.Windows.Input.Cursors.Cross;
+                    break;
+
+                case "Arrow":
+                    canvas.Cursor = System.Windows.Input.Cursors.Arrow;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
         private void RefreshAllCanvases()
         {
             RefreshCanvas(canvas, CurrentMappedImage);
