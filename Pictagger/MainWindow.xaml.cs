@@ -46,7 +46,7 @@ namespace Pictagger
         {
             OpenFileDialog dlg = new OpenFileDialog
             {
-                InitialDirectory = "c:\\",
+                InitialDirectory = "C:\\",
                 Filter = "Image files (*.jpg)|*.jpg|All Files (*.*)|*.*",
                 RestoreDirectory = true
             };
@@ -375,6 +375,16 @@ namespace Pictagger
             }
 
             RefreshTaggedNumbers();
+
+            if(FilesLeft.Count == 0)
+            {
+                System.Windows.MessageBox.Show(
+                    "No photos in the directory left. Please choose another directory.",
+                    "No photos left",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
 
             CurrentFile = FilesLeft[new Random().Next(0, FilesLeft.Count)];
             LoadImage(CurrentFile.FullName);
