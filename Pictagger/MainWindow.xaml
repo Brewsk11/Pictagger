@@ -58,7 +58,7 @@
         <!-- Canvases and images -->
 
         <Image Name="image" Height="400" Width="400" Margin="10,10,0,0" Grid.Row="1" Stretch="Fill" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-        <Canvas Name="canvas" HorizontalAlignment="Left" Height="400" Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="400" MouseMove="OnMouseMove" MouseDown="OnMouseDown" MouseUp="OnMouseUp" Opacity="0.5" Background="#7FFFFFFF" Cursor="UpArrow"/>
+        <Canvas Name="canvas" HorizontalAlignment="Left" Height="400" Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="400" MouseMove="OnMouseMove" MouseDown="OnMouseDown" MouseUp="OnMouseUp" Opacity="0.5" Background="#7FFFFFFF" Cursor="Cross"/>
 
         <Image Name="image2" HorizontalAlignment="Left" Height="150" Margin="10,431,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150"/>
         <Image Name="image3" HorizontalAlignment="Left" Height="150" Margin="165,431,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150"/>
@@ -74,7 +74,6 @@
         <Label Content="32px" HorizontalAlignment="Left" Margin="221,586,0,0" Grid.Row="1" VerticalAlignment="Top"/>
         <Label Content="16px" HorizontalAlignment="Left" Margin="374,586,0,0" Grid.Row="1" VerticalAlignment="Top"/>
         <Label Content="8px" HorizontalAlignment="Left" Margin="538,586,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-
 
     </Grid>
 </Window>
