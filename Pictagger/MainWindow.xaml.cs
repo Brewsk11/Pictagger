@@ -39,9 +39,21 @@ namespace Pictagger
 
         private Point PrevMousePos = new Point();
 
+        private CanvasPainter.PaintMode PaintMode {
+            get {
+                if (Keyboard.IsKeyDown(eraseKey))
+                    return CanvasPainter.PaintMode.Eraser;
+                else
+                    return CanvasPainter.PaintMode.Painter;
+            }}
+
+        private CanvasPainter mainCanvas;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            mainCanvas = new CanvasPainter(canvas, DefaultRes);
         }
 
         private void OpenFileDialog(object sender, RoutedEventArgs e)
@@ -99,7 +111,7 @@ namespace Pictagger
             
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                DrawCircle(canvas, BrushSize, p.X, p.Y);
+                mainCanvas.Brush(p.X, p.Y, BrushSize, PaintMode);
             }
             else if (e.RightButton == MouseButtonState.Pressed)
             {
@@ -123,10 +135,10 @@ namespace Pictagger
             if (CurrentMappedImage == null) return;
 
             Point CurrentMousePos = Mouse.GetPosition(canvas);
-            
+
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                DrawCircle(canvas, BrushSize, CurrentMousePos.X, CurrentMousePos.Y);
+                mainCanvas.Brush(CurrentMousePos.X, CurrentMousePos.Y, BrushSize, PaintMode);
 
                 ////
                 // Interpolation
@@ -145,12 +157,11 @@ namespace Pictagger
 
                 for (int i = 0; i < steps; i++)
                 {
-                    DrawCircle(
-                        canvas,
-                        BrushSize,
+                    mainCanvas.Brush(
                         PrevMousePos.X + (i * stepX),
-                        PrevMousePos.Y + (i * stepY)
-                        );
+                        PrevMousePos.Y + (i * stepY),
+                        BrushSize,
+                        PaintMode);
                 }
 
                 PrevMousePos = CurrentMousePos;
@@ -178,101 +189,6 @@ namespace Pictagger
             }
         }
 
-        private void DrawCircle(Canvas canvas, double radius, double x, double y)
-        {
-            int res = DefaultRes;
-
-            double pixelWidth = canvas.Width / res;
-            double pixelHeight = canvas.Height / res;
-
-            double startX = 0.0, startY = 0.0;
-
-            while (startX < x - radius) startX += pixelWidth;
-            while (startY < y - radius) startY += pixelHeight;
-
-            double currentX = startX, currentY = startY;
-
-            while(currentY < y + radius)
-            {
-                while(currentX < x + radius)
-                {
-                    if (MathUtils.Hypotenuse(x - currentX, y - currentY) < radius)
-                    {
-                        DrawPixel(canvas, currentX, currentY);
-                    }
-
-                    currentX += pixelWidth;
-                }
-
-                currentX = startX;
-                currentY += pixelHeight;
-            }
-        }
-
-        private void DrawPixel(Canvas canvas, Point point, int resolution = 128)
-        {
-            DrawPixel(canvas, point.X, point.Y);
-        }
-
-        private void DrawPixel(Canvas canvas, double x, double y, int resolution = 128)
-        {
-            int res = resolution;
-
-            var pixelX = (int)(x / canvas.Width * res);
-            var pixelY = (int)(y / canvas.Height * res);
-
-            DrawPixel(canvas, pixelX, pixelY);
-        }
-
-        private void DrawPixel(Canvas canvas, int x, int y, int resolution = 128)
-        {
-            bool eraseMode = Keyboard.IsKeyDown(eraseKey);
-
-            int res = resolution;
-
-            double pixelWidth = canvas.Width / res;
-            double pixelHeight = canvas.Height / res;
-
-            Rectangle toRemove = null;
-            
-            foreach (Rectangle r in canvas.Children)
-            {
-                if (Math.Abs(Canvas.GetTop(r) - pixelHeight * y) < pixelHeight / 2 &&
-                    Math.Abs(Canvas.GetLeft(r) - pixelWidth * x) < pixelWidth / 2)
-                {
-                    if (!eraseMode)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        toRemove = r;
-                        break;
-                    }
-                }
-            }
-
-            if (!eraseMode)
-            {
-                Rectangle rect = new Rectangle
-                {
-                    Fill = new SolidColorBrush(Colors.Green),
-                    Width = pixelWidth,
-                    Height = pixelHeight,
-                    Opacity = 0.85
-                };
-
-                Canvas.SetTop(rect, pixelHeight * y);
-                Canvas.SetLeft(rect, pixelWidth * x);
-
-                canvas.Children.Add(rect);
-            }
-            else
-            {
-                canvas.Children.Remove(toRemove);
-            }
-        }
-
         private void RefreshCanvas(Canvas canvas, Models.MappedImage mappedImage)
         {
             int res = mappedImage.Resolution;
@@ -285,7 +201,7 @@ namespace Pictagger
                     if (!mappedImage.Get(j, i))
                         continue;
 
-                    DrawPixel(canvas, j, i, res);
+                    //DrawPixel(canvas, j, i, res);
                 }
             }
         }

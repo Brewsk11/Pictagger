@@ -9,10 +9,9 @@ namespace Pictagger.Models
 {
     public class MappedImage
     {
-        public int Resolution = 128;
-
-        private bool[][] Map;
-
+        public int Resolution { get; }
+        private readonly bool[][] Map;
+            
         public MappedImage(int resolution)
         {
             Resolution = resolution;
