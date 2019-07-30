@@ -474,6 +474,9 @@ namespace Pictagger
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (canvas == null)
+                return;
+
             var item = (ComboBoxItem)e.AddedItems[0];
 
             switch(item.Content)
