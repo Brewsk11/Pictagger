@@ -71,13 +71,13 @@ namespace Pictagger.Logic
         }
 
 
-        private void DrawPixel(double x, double y)
+        public void DrawPixel(double x, double y)
         {
             var pixels = CalcPixel(x, y);
             DrawPixel(pixels.Item1, pixels.Item2);
         }
 
-        private void DrawPixel(int x, int y)
+        public void DrawPixel(int x, int y)
         {
             if (IsDrawn(x, y))
                 return;

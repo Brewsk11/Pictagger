@@ -201,7 +201,7 @@ namespace Pictagger
                     if (!mappedImage.Get(j, i))
                         continue;
 
-                    //DrawPixel(canvas, j, i, res);
+                    mainCanvas.DrawPixel(j, i);
                 }
             }
         }
