@@ -15,6 +15,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 
+using Pictagger.Logic;
+
 namespace Pictagger
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Pictagger
         public FileInfo CurrentFile = null;
 
         public List<FileInfo> FilesLeft, FilesTagged;
-
+        
         public readonly int DefaultRes = 128;
 
         private Point PrevMousePos = new Point();
@@ -134,7 +136,7 @@ namespace Pictagger
                 double differenceX = CurrentMousePos.X - PrevMousePos.X;
                 double differenceY = CurrentMousePos.Y - PrevMousePos.Y;
 
-                double distance = PythagorasCalcC(differenceX, differenceY);
+                double distance = MathUtils.Hypotenuse(differenceX, differenceY);
 
                 int steps = (int)(distance / threshhold);
 
@@ -194,7 +196,7 @@ namespace Pictagger
             {
                 while(currentX < x + radius)
                 {
-                    if (PythagorasCalcC(x - currentX, y - currentY) < radius)
+                    if (MathUtils.Hypotenuse(x - currentX, y - currentY) < radius)
                     {
                         DrawPixel(canvas, currentX, currentY);
                     }
@@ -291,11 +293,6 @@ namespace Pictagger
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             BrushSize = e.NewValue;
-        }
-        
-        private double PythagorasCalcC(double a, double b)
-        {
-            return Math.Sqrt(Math.Pow(a, 2.0) + Math.Pow(b, 2.0));
         }
 
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
