@@ -65,7 +65,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Logic\CanvasPainter.cs" />
+    <Compile Include="Logic\CanvasPainters\AdditiveCanvasPainter.cs" />
+    <Compile Include="Logic\CanvasPainters\PixellikeCanvasPainter.cs" />
+    <Compile Include="Logic\ICanvasPainter.cs" />
     <Compile Include="Logic\MathUtils.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

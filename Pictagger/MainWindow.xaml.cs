@@ -39,21 +39,21 @@ namespace Pictagger
 
         private Point PrevMousePos = new Point();
 
-        private CanvasPainter.PaintMode PaintMode {
+        private PaintMode PaintMode {
             get {
                 if (Keyboard.IsKeyDown(eraseKey))
-                    return CanvasPainter.PaintMode.Eraser;
+                    return PaintMode.Eraser;
                 else
-                    return CanvasPainter.PaintMode.Painter;
+                    return PaintMode.Painter;
             }}
 
-        private CanvasPainter mainCanvas;
+        private ICanvasPainter mainCanvas;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            mainCanvas = new CanvasPainter(canvas, DefaultRes);
+            mainCanvas = new PixellikeCanvasPainter(canvas, DefaultRes);
         }
 
         private void OpenFileDialog(object sender, RoutedEventArgs e)
@@ -143,7 +143,7 @@ namespace Pictagger
                 ////
                 // Interpolation
 
-                double threshhold = BrushSize; // In pixels
+                double threshhold = BrushSize / 4; // In pixels
 
                 double differenceX = CurrentMousePos.X - PrevMousePos.X;
                 double differenceY = CurrentMousePos.Y - PrevMousePos.Y;

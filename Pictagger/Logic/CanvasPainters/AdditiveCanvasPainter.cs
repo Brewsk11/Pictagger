@@ -9,21 +9,15 @@ using System.Windows.Shapes;
 
 namespace Pictagger.Logic
 {
-    public class CanvasPainter
+    public class AdditiveCanvasPainter : ICanvasPainter
     {
         public Canvas Canvas { get; }
         public int Resolution { get; }
 
-        public readonly double PixelWidth;
-        public readonly double PixelHeight;
-
-        public enum PaintMode
-        {
-            Painter,
-            Eraser
-        }
-
-        public CanvasPainter(Canvas canvas, int resolution)
+        public double PixelWidth { get; }
+        public double PixelHeight { get; }
+        
+        public AdditiveCanvasPainter(Canvas canvas, int resolution)
         {
             Canvas = canvas;
             Resolution = resolution;
@@ -96,13 +90,13 @@ namespace Pictagger.Logic
             Canvas.Children.Add(rect);
         }
 
-        private void RemovePixel(double x, double y)
+        public void RemovePixel(double x, double y)
         {
             var pixels = CalcPixel(x, y);
             RemovePixel(pixels.Item1, pixels.Item2);
         }
 
-        private void RemovePixel(int x, int y)
+        public void RemovePixel(int x, int y)
         {
             if (!IsDrawn(x, y))
                 return;
