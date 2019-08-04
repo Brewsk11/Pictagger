@@ -498,6 +498,31 @@ namespace Pictagger
             }
         }
 
+        private void SkipPhoto(object sender, RoutedEventArgs e)
+        {
+            if (CurrentDirectory == null)
+            {
+                System.Windows.MessageBox.Show(
+                    "Please select a directory before you use this option",
+                    "No directory selected",
+                    MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+
+            if (FilesLeft.Count == 0)
+            {
+                System.Windows.MessageBox.Show(
+                    "No photos in the directory left. Please choose another directory.",
+                    "No photos left",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            CurrentFile = FilesLeft[new Random().Next(0, FilesLeft.Count)];
+            LoadImage(CurrentFile.FullName);
+        }
+
         private void RefreshAllCanvases()
         {
             RefreshCanvas(canvas, CurrentMappedImage);
