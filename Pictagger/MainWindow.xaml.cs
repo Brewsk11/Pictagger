@@ -46,7 +46,8 @@ namespace Pictagger
         {
             OpenFileDialog dlg = new OpenFileDialog
             {
-                InitialDirectory = "C:\\",
+                //InitialDirectory = "C:\\",
+                InitialDirectory = @"C:\Users\Admin\Documents\Mateusz\Studia\Inżynierka\Program\asl-alphabet\asl_alphabet_train",
                 Filter = "Image files (*.jpg)|*.jpg|All Files (*.*)|*.*",
                 RestoreDirectory = true
             };
@@ -310,6 +311,7 @@ namespace Pictagger
         private void OpenDirectoryDialog(object sender, RoutedEventArgs e)
         {
             FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.SelectedPath = @"C:\Users\Admin\Documents\Mateusz\Studia\Inżynierka\Program\asl-alphabet\asl_alphabet_train";
 
             if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
@@ -521,6 +523,34 @@ namespace Pictagger
 
             CurrentFile = FilesLeft[new Random().Next(0, FilesLeft.Count)];
             LoadImage(CurrentFile.FullName);
+        }
+
+        private void OpenGimp(object sender, RoutedEventArgs e)
+        {
+            string gimpExe = @"C:\Program Files\GIMP 2\bin\gimp-2.10.exe";
+            if(!File.Exists(gimpExe))
+            {
+                System.Windows.MessageBox.Show(
+                    "Please, select gimp exacutable file.",
+                    "Unable to find GIMP application.",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                OpenFileDialog dlg = new OpenFileDialog
+                {
+                    InitialDirectory = Environment.ExpandEnvironmentVariables("%ProgramW6432%"),
+                    Filter = "Application (*.exe)|*.exe",
+                    RestoreDirectory = true,
+                    Title = "Select gimp executable file"
+                };
+
+                if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    gimpExe = dlg.FileName;
+                }
+            }
+            System.Diagnostics.Process.Start("\"" + gimpExe + "\"", "\"" + CurrentFile.FullName + "\"");
+            //SkipPhoto(new object(), new RoutedEventArgs());
         }
 
         private void RefreshAllCanvases()

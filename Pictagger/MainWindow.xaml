@@ -43,7 +43,7 @@
             <ComboBoxItem Content="Arrow"/>
         </ComboBox>
 
-
+        <Button Content="Open in GIMP" HorizontalAlignment="Left" Margin="428,189,0,0" Grid.Row="1" VerticalAlignment="Top" Width="197" Height="28" Click="OpenGimp"/>
         <!-- Information section -->
 
         <Label Content="Scroll Wheel&#xD;&#xA;RMB&#xD;&#xA;X" HorizontalAlignment="Left" Margin="428,234,0,0" Grid.Row="1" VerticalAlignment="Top" Height="53" Width="77" FontWeight="Bold" FontSize="11" FlowDirection="RightToLeft"/>
@@ -75,6 +75,7 @@
         <Label Content="32px" HorizontalAlignment="Left" Margin="221,586,0,0" Grid.Row="1" VerticalAlignment="Top"/>
         <Label Content="16px" HorizontalAlignment="Left" Margin="374,586,0,0" Grid.Row="1" VerticalAlignment="Top"/>
         <Label Content="8px" HorizontalAlignment="Left" Margin="538,586,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        
 
     </Grid>
 </Window>
