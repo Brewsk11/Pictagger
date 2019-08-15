@@ -527,7 +527,29 @@ namespace Pictagger
 
         private void OpenGimp(object sender, RoutedEventArgs e)
         {
-            string gimpExe = @"C:\Program Files\GIMP 2\bin\gimp-2.10.exe";
+            if(CurrentFile == null)
+            {
+                System.Windows.MessageBox.Show(
+                    "Select image.",
+                    "Information",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            string gimpExe;
+            if (File.Exists("config.txt"))
+            {
+                using (StreamReader configFile = new StreamReader("config.txt"))
+                {
+                    gimpExe = configFile.ReadLine();
+                }
+            }
+            else
+            {
+                gimpExe = @"C:\Program Files\GIMP 2\bin\gimp-2.10.exe";
+            }
+
             if(!File.Exists(gimpExe))
             {
                 System.Windows.MessageBox.Show(
@@ -547,10 +569,19 @@ namespace Pictagger
                 if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     gimpExe = dlg.FileName;
+                    using (StreamWriter config = new StreamWriter("config.txt"))
+                    {
+                        config.WriteLine(gimpExe);
+                    }
                 }
             }
             System.Diagnostics.Process.Start("\"" + gimpExe + "\"", "\"" + CurrentFile.FullName + "\"");
             //SkipPhoto(new object(), new RoutedEventArgs());
+        }
+
+        private void ScaleGimpFolder(object sender, RoutedEventArgs e)
+        {
+
         }
 
         private void RefreshAllCanvases()
