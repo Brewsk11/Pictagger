@@ -320,6 +320,7 @@ namespace Pictagger
                 FilesTagged = new List<FileInfo>();
 
                 Directory.CreateDirectory(CurrentDirectory.FullName + "\\Tagged");
+                Directory.CreateDirectory(CurrentDirectory.FullName + "\\Gimp");
                 DirectoryInfo taggedDir = new DirectoryInfo(CurrentDirectory.FullName + "\\Tagged");
 
                 foreach (FileInfo f in taggedDir.EnumerateFiles())
@@ -579,9 +580,64 @@ namespace Pictagger
             //SkipPhoto(new object(), new RoutedEventArgs());
         }
 
+        public System.Drawing.Bitmap ResizeBitmap(System.Drawing.Bitmap bmp, int width, int height)
+        {
+            System.Drawing.Bitmap result = new System.Drawing.Bitmap(width, height);
+            using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(result))
+            {
+                g.DrawImage(bmp, 0, 0, width, height);
+            }
+
+            return result;
+        }
+
         private void ScaleGimpFolder(object sender, RoutedEventArgs e)
         {
+            if (Directory.Exists(CurrentDirectory.FullName + "\\Gimp"))
+            {
+                DirectoryInfo gimpFolder = new DirectoryInfo(CurrentDirectory.FullName + "\\Gimp");
+                
+                foreach(FileInfo f in gimpFolder.EnumerateFiles())
+                {
+                    string baseName = StripExtension(f.Name);
+                    System.Drawing.Bitmap bmp = (System.Drawing.Bitmap)System.Drawing.Bitmap.FromFile(f.FullName);
+                    int[] sizes = { 128, 64, 32, 16, 8 };
 
+                    for(int i=0; i<sizes.Length; i++)
+                    {
+                        System.Drawing.Bitmap newBmp = ResizeBitmap(bmp, sizes[i], sizes[i]);
+                        string fileName = CurrentDirectory.FullName + "\\Tagged\\" + baseName + "_" + sizes[i] + ".bmp";
+                        newBmp.Save(fileName);
+                    }
+                    
+                    //FilesTagged.Add(new FileInfo(CurrentDirectory + "\\" + f.Name));    //added file from base directory, because files in Gimp folder will be deleted
+                    FilesTagged.Add(f);
+                    bmp.Dispose();
+                    f.Delete();
+
+                    foreach (FileInfo fi in FilesLeft)
+                    {
+                        if (StripExtension(fi.Name) == baseName)
+                        {
+                            FilesLeft.Remove(fi);
+                            break;
+                        }
+                    }
+                }
+
+                RefreshTaggedNumbers();
+
+                if (FilesLeft.Count == 0)
+                {
+                    System.Windows.MessageBox.Show(
+                        "No photos in the directory left. Please choose another directory.",
+                        "No photos left",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+            }
+            SkipPhoto(new object(), new RoutedEventArgs());
         }
 
         private void RefreshAllCanvases()
