@@ -576,7 +576,9 @@ namespace Pictagger
                     }
                 }
             }
-            System.Diagnostics.Process.Start("\"" + gimpExe + "\"", "\"" + CurrentFile.FullName + "\"");
+            string tmpImage = CurrentDirectory.FullName + "\\Gimp\\" + CurrentFile.Name;
+            File.Copy(CurrentFile.FullName, tmpImage);
+            System.Diagnostics.Process.Start("\"" + gimpExe + "\"", "\"" + tmpImage + "\"");
             //SkipPhoto(new object(), new RoutedEventArgs());
         }
 
@@ -599,28 +601,35 @@ namespace Pictagger
                 
                 foreach(FileInfo f in gimpFolder.EnumerateFiles())
                 {
-                    string baseName = StripExtension(f.Name);
-                    System.Drawing.Bitmap bmp = (System.Drawing.Bitmap)System.Drawing.Bitmap.FromFile(f.FullName);
-                    int[] sizes = { 128, 64, 32, 16, 8 };
-
-                    for(int i=0; i<sizes.Length; i++)
+                    if(f.Extension == ".jpg")
                     {
-                        System.Drawing.Bitmap newBmp = ResizeBitmap(bmp, sizes[i], sizes[i]);
-                        string fileName = CurrentDirectory.FullName + "\\Tagged\\" + baseName + "_" + sizes[i] + ".bmp";
-                        newBmp.Save(fileName);
+                        f.Delete();
                     }
-                    
-                    //FilesTagged.Add(new FileInfo(CurrentDirectory + "\\" + f.Name));    //added file from base directory, because files in Gimp folder will be deleted
-                    FilesTagged.Add(f);
-                    bmp.Dispose();
-                    f.Delete();
-
-                    foreach (FileInfo fi in FilesLeft)
+                    else
                     {
-                        if (StripExtension(fi.Name) == baseName)
+                        string baseName = StripExtension(f.Name);
+                        System.Drawing.Bitmap bmp = (System.Drawing.Bitmap)System.Drawing.Bitmap.FromFile(f.FullName);
+                        int[] sizes = { 128, 64, 32, 16, 8 };
+
+                        for(int i=0; i<sizes.Length; i++)
                         {
-                            FilesLeft.Remove(fi);
-                            break;
+                            System.Drawing.Bitmap newBmp = ResizeBitmap(bmp, sizes[i], sizes[i]);
+                            string fileName = CurrentDirectory.FullName + "\\Tagged\\" + baseName + "_" + sizes[i] + ".bmp";
+                            newBmp.Save(fileName);
+                        }
+                    
+                        //FilesTagged.Add(new FileInfo(CurrentDirectory + "\\" + f.Name));    //added file from base directory, because files in Gimp folder will be deleted
+                        FilesTagged.Add(f);
+                        bmp.Dispose();
+                        f.Delete();
+
+                        foreach (FileInfo fi in FilesLeft)
+                        {
+                            if (StripExtension(fi.Name) == baseName)
+                            {
+                                FilesLeft.Remove(fi);
+                                break;
+                            }
                         }
                     }
                 }
